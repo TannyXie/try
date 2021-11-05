@@ -19,8 +19,8 @@
 #define NPROC 4
 #define MPROC 4
 
-#define M L/MPROC
-#define N L/NPROC
+#define M LM/MPROC
+#define N LN/NPROC
 
 /*
  *  Prototypes for supplied functions
