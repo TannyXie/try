@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
    *  Update for a fixed number of steps, periodically report progress
    */
 
-  maxstep = 5*L;
+  maxstep = 5*LM*LN;
   printfreq = 100;
 
   if (rank == 0)
@@ -149,8 +149,8 @@ int main(int argc, char *argv[])
 
       seed = atoi(argv[1]);
 
-      printf("percolate: L = %d, rho = %f, seed = %d, maxstep = %d\n",
-	     L, rho, seed, maxstep);
+      printf("percolate: LM = %d, LN = %d, rho = %f, seed = %d, maxstep = %d\n",
+	     LM, LN, rho, seed, maxstep);
 
       rinit(seed);
 
@@ -162,9 +162,9 @@ int main(int argc, char *argv[])
 
       nhole = 0;
 
-      for (i=0; i < L; i++)
+      for (i=0; i < LM; i++)
       {
-        for (j=0; j < L; j++)
+        for (j=0; j < LN; j++)
           {
             r=uni();
         
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
       }
 
       printf("percolate: rho = %f, actual density = %f\n",
-	      rho, 1.0 - ((double) nhole)/((double) L*L) );
+	      rho, 1.0 - ((double) nhole)/((double) LM*LN) );
     }
 
   /*
@@ -398,13 +398,13 @@ int main(int argc, char *argv[])
     {
       perc = 0;
 
-      for (itop=0; itop < L; itop++)
+      for (itop=0; itop < LM; itop++)
         {
-          if (map[itop][L-1] > 0)
+          if (map[itop][LN-1] > 0)
             {
-              for (ibot=0; ibot < L; ibot++)
+              for (ibot=0; ibot < LM; ibot++)
                 {
-                  if (map[ibot][0] == map[itop][L-1])
+                  if (map[ibot][0] == map[itop][LN-1])
                     {
                       perc = 1;
                     }
