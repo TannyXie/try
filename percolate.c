@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  printf("Watchpoint1\n");
+
   /*
    * Initialise the old array: copy the LxL array smallmap to the centre of
    * old, and set the halo values to zero.
@@ -252,24 +252,45 @@ int main(int argc, char *argv[])
        * combination of issend/recv or ssend/irecv)
        */
 // TODO:
+      MPI_Request request_s, request_r;
+      MPI_Issend(&old[M][1], N, MPI_INT, down, tag, comm, &request_s);
+      MPI_Irecv(&old[0][1], N, MPI_INT, up, tag, comm, &request_r);
+      MPI_Wait(&request_s, &status);
+      MPI_Wait(&request_r, &status);
+      MPI_Issend(&old[M][1], N, MPI_INT, down, tag, comm, &request_s);
+      MPI_Irecv(&old[0][1], N, MPI_INT, up, tag, comm, &request_r);
+      MPI_Wait(&request_s, &status);
+      MPI_Wait(&request_r, &status);
+      /*
       MPI_Sendrecv(&old[M][1], N, MPI_INT, down, tag,
 		   &old[0][1], N, MPI_INT, up, tag,
 		   comm, &status);
       MPI_Sendrecv(&old[1][1], N, MPI_INT, up, tag, 
 		   &old[M+1][1], N, MPI_INT, down, tag,
 		   comm, &status);
+       */
 // TODO:
       int temp_send_1[M], temp_send_N[M], temp_recv_0[M], temp_recv_Np1[M];
       for(i = 0; i < M; ++i) {
         temp_send_1[i] = old[i+1][1];
         temp_send_N[i] = old[i+1][N];
       }
+      MPI_Issend(temp_send_1, M, MPI_INT, left, tag, comm, &request_s);
+      MPI_Irecv(temp_recv_Np1, N, MPI_INT, right, tag, comm, &request_r);
+      MPI_Wait(&request_s, &status);
+      MPI_Wait(&request_r, &status);
+      MPI_Issend(temp_send_N, M, MPI_INT, right, tag, comm, &request_s);
+      MPI_Irecv(temp_recv_0, N, MPI_INT, left, tag, comm, &request_r);
+      MPI_Wait(&request_s, &status);
+      MPI_Wait(&request_r, &status);
+      /*
       MPI_Sendrecv(temp_send_1, M, MPI_INT, left, tag,
 		   temp_recv_Np1, N, MPI_INT, right, tag,
 		   comm, &status);
       MPI_Sendrecv(temp_send_N, M, MPI_INT, right, tag, 
 		   temp_recv_0, N, MPI_INT, left, tag,
 		   comm, &status);
+       */
       
       for(i = 0; i < M; ++i){
         old[i+1][0] = temp_recv_0[i];
