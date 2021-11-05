@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
     for(i = 0; i < MPROC; ++i) {
       for(j = 0; j < NPROC; ++j) {
         for(k = 0; k < M; ++k) {
-          MPI_Send(map[k+i*MPROC][j*NPROC], N, MPI_INT, i*MPROC+j, 0, comm);
+          MPI_Send(&map[k+i*MPROC][j*NPROC], N, MPI_INT, i*MPROC+j, 0, comm);
         }
       }
     }

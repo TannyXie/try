@@ -30,7 +30,7 @@
  *  Visualisation
  */
 
-void mapwrite(char *percfile, int map[L][L], int ncluster);
+void mapwrite(char *percfile, int map[LM][LN], int ncluster);
 void mapwritedynamic(char *percfile, int **map, int l, int ncluster);
 
 /*
