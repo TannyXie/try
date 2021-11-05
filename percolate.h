@@ -6,7 +6,7 @@
  *  System size LM LN
  */
 
-#define LM 60
+#define LM 40
 #define LN 40
 
 
