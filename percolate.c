@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
   int i, j, k, w, nhole, step, maxstep, oldval, newval;
   int nchangelocal, nchange, printfreq;
-  int itop, ibot, perc; // TODO:
+  int itop, ibot, perc;
   double r;
 
   /*
@@ -203,6 +203,7 @@ int main(int argc, char *argv[])
   else {
     for(i = 0; i < MPROC; ++i) {
       for(j = 0; j < NPROC; ++j) {
+        if (i == 0 && j == 0) continue;
         for(k = 0; k < M; ++k) {
           MPI_Ssend(&map[k+i*MPROC][j*NPROC], N, MPI_INT, i*MPROC+j, 0, comm);
         }
@@ -372,7 +373,7 @@ int main(int argc, char *argv[])
    *  Now gather smallmap back to map
    */
 // TODO:
-  MPI_Gather(smallmap, M*N, MPI_INT, map, M*N, MPI_INT, 0, comm);
+  //MPI_Gather(smallmap, M*N, MPI_INT, map, M*N, MPI_INT, 0, comm);
   if(rank == 0) {
     for(i = 0; i < MPROC; ++i) {
       for(j = 0; j < NPROC; ++j) {
