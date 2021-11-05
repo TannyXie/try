@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
     }
   }
 
-
+  printf("Watchpoint1\n");
   /*
    * Initialise the old array: copy the LxL array smallmap to the centre of
    * old, and set the halo values to zero.
