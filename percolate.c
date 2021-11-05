@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
    *  these two steps in serial
    */
 
-  int map[L][L];
+  int map[LM][LN];
 
   /*
    *  Array to store local part of map
@@ -197,14 +197,14 @@ int main(int argc, char *argv[])
 
   if (rank != 0) {
     for (i = 0; i < M; ++i) {
-      MPI_Recv(&smallmap[i][0], N, MPI_INT, 0, 0, comm);
+      MPI_Recv(&smallmap[i][0], N, MPI_INT, 0, 0, comm, &status);
     }
   }
   else {
     for(i = 0; i < MPROC; ++i) {
       for(j = 0; j < NPROC; ++j) {
         for(k = 0; k < M; ++k) {
-          MPI_Send(map[k+i*MPROC][j*NPROC], N, MPI_INT, i*MPROC+j, 0, comm, &status);
+          MPI_Send(map[k+i*MPROC][j*NPROC], N, MPI_INT, i*MPROC+j, 0, comm);
         }
       }
     }
