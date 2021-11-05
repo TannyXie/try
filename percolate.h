@@ -3,7 +3,7 @@
  */
 
 /*
- *  System size L
+ *  System size LM LN
  */
 
 #define LM 60

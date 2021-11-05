@@ -13,10 +13,10 @@
 #define MAXNCLUSTER 9          // Must be able to identify by a single digit
 int foundcluster[MAXNCLUSTER];
 
-#define MAXCLUSTERID (L*L)    // Extreme case of zero density
+#define MAXCLUSTERID (LM*LN)    // Extreme case of zero density
 int clustersize[MAXCLUSTERID+1];
 
-void mapwrite(char *percfile, int map[L][L], int ncluster)
+void mapwrite(char *percfile, int map[LM][LN], int ncluster)
 {
   FILE *fp;
 
@@ -51,9 +51,9 @@ void mapwrite(char *percfile, int map[L][L], int ncluster)
       clustersize[i] = 0;
     }
 
-  for (i=0; i < L; i++)
+  for (i=0; i < LM; i++)
     {
-      for (j=0; j < L; j++)
+      for (j=0; j < LN; j++)
 	{
 	  clusterid = map[i][j];
 
@@ -116,7 +116,7 @@ void mapwrite(char *percfile, int map[L][L], int ncluster)
    */
 
   fprintf(fp, "P2\n");
-  fprintf(fp, "%d %d\n%d\n", L, L, ncluster);
+  fprintf(fp, "%d %d\n%d\n", LM, LN, ncluster);
 
   /*
    *  Now write the cells to file so that map[0][0] is in the
@@ -126,9 +126,9 @@ void mapwrite(char *percfile, int map[L][L], int ncluster)
 
   npix = 0;
 
-  for (j=L-1; j >= 0; j--)
+  for (j=LN-1; j >= 0; j--)
     {
-      for (i=0; i < L; i++)
+      for (i=0; i < LM; i++)
 	{
 	  clusterid = map[i][j];
 
@@ -190,9 +190,9 @@ void mapwrite(char *percfile, int map[L][L], int ncluster)
  *  dynamically allocated, e.g. using the arralloc() routine:
  *
  *  int **map;
- *  map = (int **) arralloc(sizeof(int), 2, L, L);
+ *  map = (int **) arralloc(sizeof(int), 2, LM, LN);
  *  ...
- *  mapwritedynamic("map.pgm", map, L, 1);
+ *  mapwritedynamic("map.pgm", map, LM, 1);
  */
 
 #define MAXNCLUSTER 9          // Must be able to identify by a single digit
