@@ -215,6 +215,7 @@ int main(int argc, char *argv[])
     }
   }
   printf("This is sync over");
+  MPI_Finalize();
   return 0;
 
   /*
