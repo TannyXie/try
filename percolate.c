@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 // TODO:
   left = rank - 1;
   right = rank + 1;
-  down = MPI_PROC_NULL;
+  down = rank - NPROC;
   up = rank + NPROC;
   printf("size: %d\n", size);
 
