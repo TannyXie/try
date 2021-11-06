@@ -197,7 +197,9 @@ int main(int argc, char *argv[])
 
   if (rank != 0) {
     for (i = 0; i < M; ++i) {
-      MPI_Recv(&smallmap[i][0], N, MPI_INT, 0, 0, comm, &status);
+//      MPI_Recv(&smallmap[i][0], N, MPI_INT, 0, 0, comm, &status);
+      int a;
+      MPI_Recv(&a, 1, MPI_INT, 0, 0, comm, &status);
     }
   }
   else {
@@ -205,12 +207,15 @@ int main(int argc, char *argv[])
       for(j = 0; j < NPROC; ++j) {
         if (i == 0 && j == 0) continue;
         for(k = 0; k < M; ++k) {
-          MPI_Ssend(&map[k+i*MPROC][j*NPROC], N, MPI_INT, i*MPROC+j, 0, comm);
+          int a = 1;
+//          MPI_Ssend(&map[k+i*MPROC][j*NPROC], N, MPI_INT, i*MPROC+j, 0, comm);
+          MPI_Ssend(&a, 1, MPI_INT, i*MPROC+j, 0, comm);
         }
       }
     }
   }
   printf("This is sync over");
+  return 0;
 
   /*
    * Initialise the old array: copy the LxL array smallmap to the centre of
