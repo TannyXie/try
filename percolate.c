@@ -8,6 +8,7 @@
 
 #include "percolate.h"
 int rank_v(int rank, int size)  {
+  return 0;
   return (rank >=0 ) && (rank < size);
 }
 /*
