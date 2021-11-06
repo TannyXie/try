@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
   right = (rank % NPROC) + 1;
   down = (rank % MPROC) - 1;
   up = (rank % MPROC) + 1;
+  printf("size: %d\n", size);
 
   /*
    * Non-periodic boundary conditions
