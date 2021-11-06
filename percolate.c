@@ -198,6 +198,7 @@ int main(int argc, char *argv[])
   if (rank != 0) {
     for (i = 0; i < M; ++i) {
       MPI_Recv(&smallmap[i][0], N, MPI_INT, 0, 0, comm, &status);
+      printf("Rank %d recv over\n", rank);
       //int a[N];
       //MPI_Recv(a, N, MPI_INT, 0, 0, comm, &status);
     }
@@ -214,7 +215,7 @@ int main(int argc, char *argv[])
       }
     }
   }
-  printf("This is sync over");
+  printf("This is sync over\n");
 
   /*
    * Initialise the old array: copy the LxL array smallmap to the centre of
