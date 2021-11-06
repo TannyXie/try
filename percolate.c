@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
           MPI_Ssend(&map[k+i*M][j*N], N, MPI_INT, i*MPROC+j, 0, comm);
           //MPI_Ssend(a, N, MPI_INT, i*MPROC+j, 0, comm);
         }
-        //printf("Rank %d send over\n", i*MPROC+j);
+        printf("Rank %d send over\n", i*MPROC+j);
       }
     }
   }
