@@ -42,5 +42,5 @@ float uni(void);
 
 /**
  * utils.c
- * /
+ */
 inline bool rank_valid(int rank, int size);
