@@ -198,10 +198,10 @@ int main(int argc, char *argv[])
   if (rank != 0) {
     for (i = 0; i < M; ++i) {
       MPI_Recv(&smallmap[i][0], N, MPI_INT, 0, 0, comm, &status);
-      printf("Rank %d recv over\n", rank);
       //int a[N];
       //MPI_Recv(a, N, MPI_INT, 0, 0, comm, &status);
     }
+    printf("Rank %d recv over\n", rank);
   }
   else {
     for(i = 0; i < MPROC; ++i) {
@@ -213,6 +213,7 @@ int main(int argc, char *argv[])
           //MPI_Ssend(a, N, MPI_INT, i*MPROC+j, 0, comm);
         }
       }
+      printf("Rank %d send over\n", i*MPROC+j);
     }
   }
   printf("This is sync over\n");
