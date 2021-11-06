@@ -8,7 +8,6 @@
 
 #include "percolate.h"
 int rank_v(int rank, int size)  {
-  return 0;
   return (rank >=0 ) && (rank < size);
 }
 /*
@@ -89,7 +88,7 @@ int main(int argc, char *argv[])
 
   if (!rank_valid(left, size))
     {
-      right = MPI_PROC_NULL;
+      left = MPI_PROC_NULL;
     }
   if (!rank_valid(right, size))
     {
@@ -97,11 +96,11 @@ int main(int argc, char *argv[])
     }
   if (!rank_v(down, size))
     {
-      right = MPI_PROC_NULL;
+      down = MPI_PROC_NULL;
     }
   if (!rank_v(up, size))
     {
-      right = MPI_PROC_NULL;
+      up = MPI_PROC_NULL;
     }
 
   if (NPROC * MPROC != size)
