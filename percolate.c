@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
       //int a[N];
       //MPI_Recv(a, N, MPI_INT, 0, 0, comm, &status);
     }
-    printf("Rank %d recv over\n", rank);
+    //printf("Rank %d recv over\n", rank);
   }
   else {
     for(i = 0; i < MPROC; ++i) {
@@ -213,11 +213,14 @@ int main(int argc, char *argv[])
           MPI_Ssend(&map[k+i*M][j*N], N, MPI_INT, i*MPROC+j, 0, comm);
           //MPI_Ssend(a, N, MPI_INT, i*MPROC+j, 0, comm);
         }
-        printf("Rank %d send over\n", i*MPROC+j);
+        //printf("Rank %d send over\n", i*MPROC+j);
       }
     }
-    printf("This is sync over\n");
   }
+
+  MPI_Barrier(comm);
+  printf("This is sync over\n");
+
 
   /*
    * Initialise the old array: copy the LxL array smallmap to the centre of
