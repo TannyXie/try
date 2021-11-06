@@ -13,7 +13,7 @@ INC= \
 SRC= \
 	percolate.c \
 	percio.c \
-	unirand.c
+	unirand.c \
 	utils.c
 
 #
