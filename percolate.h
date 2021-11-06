@@ -43,4 +43,4 @@ float uni(void);
 /**
  * utils.c
  */
-inline int rank_valid(int rank, int size);
+int rank_valid(int rank, int size);
