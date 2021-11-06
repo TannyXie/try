@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
       }
     }
   }
-
+  printf("This is sync over");
 
   /*
    * Initialise the old array: copy the LxL array smallmap to the centre of
