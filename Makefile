@@ -14,6 +14,7 @@ SRC= \
 	percolate.c \
 	percio.c \
 	unirand.c
+	utils.c
 
 #
 # No need to edit below this line
