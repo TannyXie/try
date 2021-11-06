@@ -7,7 +7,9 @@
 #include <mpi.h>
 
 #include "percolate.h"
-
+int rank_v(int rank, int size)  {
+  return (rank >=0 ) && (rank < size);
+}
 /*
  * Simple parallel program to test for percolation of a cluster.
  */
@@ -92,11 +94,11 @@ int main(int argc, char *argv[])
     {
       right = MPI_PROC_NULL;
     }
-  if (!rank_valid(down, size))
+  if (!rank_v(down, size))
     {
       right = MPI_PROC_NULL;
     }
-  if (!rank_valid(up, size))
+  if (!rank_v(up, size))
     {
       right = MPI_PROC_NULL;
     }
