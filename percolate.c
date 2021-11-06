@@ -263,10 +263,15 @@ int main(int argc, char *argv[])
        */
       // TODO:
       MPI_Request request_s, request_r;
+      MPI_Sendrecv(&old[M][1], N, MPI_INT, down, tag,
+		   &old[0][1], N, MPI_INT, up, tag,
+		   comm, &status);
+       /*
       MPI_Issend(&old[M][1], N, MPI_INT, down, tag, comm, &request_s);
       MPI_Irecv(&old[0][1], N, MPI_INT, up, tag, comm, &request_r);
       MPI_Wait(&request_s, &status);
       MPI_Wait(&request_r, &status);
+      */
       MPI_Barrier(comm);
       printf("This is sync21 over\n");
       MPI_Issend(&old[M][1], N, MPI_INT, down, tag, comm, &request_s);
