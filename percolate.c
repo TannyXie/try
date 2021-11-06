@@ -107,10 +107,10 @@ int main(int argc, char *argv[])
   if (NPROC * MPROC != size)
     {
       if (rank == 0)
-	{
-	  printf("percolate: ERROR, NPROC = %d but running on %d\n",
-		 NPROC, size);
-	}
+      {
+        printf("percolate: ERROR, NPROC = %d but running on %d\n",
+        NPROC, size);
+      }
 
       MPI_Finalize();
       return 0;
@@ -119,9 +119,9 @@ int main(int argc, char *argv[])
   if (argc != 2)
     {
       if (rank == 0)
-	{
-	  printf("Usage: percolate <seed>\n");
-	}
+      {
+        printf("Usage: percolate <seed>\n");
+      }
 
       MPI_Finalize();
       return 0;
@@ -133,6 +133,7 @@ int main(int argc, char *argv[])
 
   maxstep = 5*LM*LN;
   printfreq = 100; 
+  printf("Before Init\n");
 
   if (rank == 0)
     {
@@ -189,7 +190,7 @@ int main(int argc, char *argv[])
    *  Now scatter map to smallmap
    */
 
-// TODO:
+  // TODO:
   //MPI_Scatter(map, M*N, MPI_INT, smallmap, M*N, MPI_INT, 0, comm);
   /**
    * For MPROC * NPROC processes, the rank 0 process needs to scatter the map to 
