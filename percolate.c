@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
   }
 
   MPI_Barrier(comm);
-  printf("This is sync over\n");
+  printf("This is sync1 over\n");
 
 
   /*
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
        * solution would use non-blocking communications (e.g. some
        * combination of issend/recv or ssend/irecv)
        */
-// TODO:
+      // TODO:
       MPI_Request request_s, request_r;
       MPI_Issend(&old[M][1], N, MPI_INT, down, tag, comm, &request_s);
       MPI_Irecv(&old[0][1], N, MPI_INT, up, tag, comm, &request_r);
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 		   &old[M+1][1], N, MPI_INT, down, tag,
 		   comm, &status);
        */
-// TODO:
+      // TODO:
       int temp_send_1[M], temp_send_N[M], temp_recv_0[M], temp_recv_Np1[M];
       for(i = 0; i < M; ++i) {
         temp_send_1[i] = old[i+1][1];
@@ -302,6 +302,8 @@ int main(int argc, char *argv[])
 		   comm, &status);
        */
       
+      MPI_Barrier(comm);
+      printf("This is sync2 over\n");
       for(i = 0; i < M; ++i){
         old[i+1][0] = temp_recv_0[i];
         old[i+1][N+1] = temp_recv_Np1[i];
