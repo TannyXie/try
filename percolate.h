@@ -39,3 +39,8 @@ void mapwritedynamic(char *percfile, int **map, int l, int ncluster);
 
 void rinit(int ijkl);
 float uni(void);
+
+/**
+ * utils.c
+ * /
+inline bool rank_valid(int rank, int size);

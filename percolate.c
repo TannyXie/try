@@ -65,10 +65,10 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &size);
   MPI_Comm_rank(comm, &rank);
 // TODO:
-  left = (rank % NPROC) - 1;
-  right = (rank % NPROC) + 1;
-  down = (rank / MPROC) - 1;
-  up = (rank / MPROC) + 1;
+  left = rank - 1;
+  right = rank + 1;
+  down = rank - NPROC;
+  up = rank + NPROC;
   printf("size: %d\n", size);
 
   /*
@@ -84,24 +84,21 @@ int main(int argc, char *argv[])
    * and MPI_Cart_shift, where MPI_PROC_NULL is assigned automatically.
    */
 
-  if (right >= NPROC)
+  if (!rank_valid(left, size))
     {
       right = MPI_PROC_NULL;
     }
-
-  if (left < 0)
+  if (!rank_valid(right, size))
     {
-      left = MPI_PROC_NULL;
+      right = MPI_PROC_NULL;
     }
-
-  if (down >= MPROC)
+  if (!rank_valid(down, size))
     {
-      down = MPI_PROC_NULL;
+      right = MPI_PROC_NULL;
     }
-
-  if (up < 0)
+  if (!rank_valid(up, size))
     {
-      up = MPI_PROC_NULL;
+      right = MPI_PROC_NULL;
     }
 
   if (NPROC * MPROC != size)
