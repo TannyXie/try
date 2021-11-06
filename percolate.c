@@ -267,10 +267,14 @@ int main(int argc, char *argv[])
       MPI_Irecv(&old[0][1], N, MPI_INT, up, tag, comm, &request_r);
       MPI_Wait(&request_s, &status);
       MPI_Wait(&request_r, &status);
+      MPI_Barrier(comm);
+      printf("This is sync21 over\n");
       MPI_Issend(&old[M][1], N, MPI_INT, down, tag, comm, &request_s);
       MPI_Irecv(&old[0][1], N, MPI_INT, up, tag, comm, &request_r);
       MPI_Wait(&request_s, &status);
       MPI_Wait(&request_r, &status);
+      MPI_Barrier(comm);
+      printf("This is sync22 over\n");
       /*
       MPI_Sendrecv(&old[M][1], N, MPI_INT, down, tag,
 		   &old[0][1], N, MPI_INT, up, tag,
@@ -289,10 +293,14 @@ int main(int argc, char *argv[])
       MPI_Irecv(temp_recv_Np1, N, MPI_INT, right, tag, comm, &request_r);
       MPI_Wait(&request_s, &status);
       MPI_Wait(&request_r, &status);
+      MPI_Barrier(comm);
+      printf("This is sync23 over\n");
       MPI_Issend(temp_send_N, M, MPI_INT, right, tag, comm, &request_s);
       MPI_Irecv(temp_recv_0, N, MPI_INT, left, tag, comm, &request_r);
       MPI_Wait(&request_s, &status);
       MPI_Wait(&request_r, &status);
+      MPI_Barrier(comm);
+      printf("This is sync24 over\n");
       /*
       MPI_Sendrecv(temp_send_1, M, MPI_INT, left, tag,
 		   temp_recv_Np1, N, MPI_INT, right, tag,
@@ -302,8 +310,6 @@ int main(int argc, char *argv[])
 		   comm, &status);
        */
       
-      MPI_Barrier(comm);
-      printf("This is sync2 over\n");
       for(i = 0; i < M; ++i){
         old[i+1][0] = temp_recv_0[i];
         old[i+1][N+1] = temp_recv_Np1[i];
