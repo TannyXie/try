@@ -67,8 +67,8 @@ int main(int argc, char *argv[])
 // TODO:
   left = (rank % NPROC) - 1;
   right = (rank % NPROC) + 1;
-  down = (rank % MPROC) - 1;
-  up = (rank % MPROC) + 1;
+  down = (rank / MPROC) - 1;
+  up = (rank / MPROC) + 1;
   printf("size: %d\n", size);
 
   /*
