@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
    */
 
   maxstep = 5*LM*LN;
-  printfreq = 100;
+  printfreq = 100; 
 
   if (rank == 0)
     {
