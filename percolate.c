@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
         if (i == 0 && j == 0) continue;
         for(k = 0; k < M; ++k) {
           //int a[N] = {0};
-          MPI_Ssend(&map[k+i*MPROC][j*NPROC], N, MPI_INT, i*MPROC+j, 0, comm);
+          MPI_Ssend(&map[k+i*M][j*N], N, MPI_INT, i*MPROC+j, 0, comm);
           //MPI_Ssend(a, N, MPI_INT, i*MPROC+j, 0, comm);
         }
       }
