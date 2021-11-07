@@ -202,6 +202,11 @@ int main(int argc, char *argv[])
       //int a[N];
       //MPI_Recv(a, N, MPI_INT, 0, 0, comm, &status);
     }
+    for(i = 0; i < M; ++i) {
+      for(j = 0; j < N; ++j) {
+        smallmap[i][j] = map[i][j];
+      }
+    }
     //printf("Rank %d recv over\n", rank);
   }
   else {
