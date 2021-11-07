@@ -435,16 +435,24 @@ int main(int argc, char *argv[])
       for(j = 0; j < NPROC; ++j) {
         if (i == 0 && j == 0) continue;
         for(k = 0; k < M; ++k) {
-          MPI_Recv(&map[k+i*M][j*N], N, MPI_INT, i*MPROC+j, 0, comm, &status);
+          MPI_Recv(&map[k+i*M][j*N], N, MPI_INT, i*NPROC+j, tag, comm, &status);
         }
+      }
+    }
+    for(i = 0; i < M; ++i) {
+      for(j = 0; j < N; ++j) {
+        map[i][j] = smallmap[i][j];
       }
     }
   }
   else {
     for (int i = 0; i < M; ++i) {
-      MPI_Ssend(&smallmap[i][0], N, MPI_INT, 0, 0, comm);
+      MPI_Ssend(&smallmap[i][0], N, MPI_INT, 0, tag, comm);
     }
   }
+  MPI_Barrier(comm);
+  if(rank == 0)
+    printf("This is sync4 over\n\n");
 
   /*
    *  Test to see if percolation occurred by looking for positive numbers
