@@ -481,8 +481,8 @@ int main(int argc, char *argv[])
        *  are useful for debugging.
        */
 
-      mapwrite("map.pgm", map, 2);
-        }
+      //mapwrite("map.pgm", map, 2);
+    }
 
   MPI_Finalize();
 
