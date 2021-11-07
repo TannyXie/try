@@ -477,6 +477,13 @@ int main(int argc, char *argv[])
             }
         }
 
+        for( i = 0; i < L; ++i) {
+          for(j = 0; j < L; ++j) {
+            printf("%d ", map[i][j]);
+          }
+          printf("\n");
+        }
+
       if (perc != 0)
       {
         printf("percolate: cluster DOES percolate\n");
