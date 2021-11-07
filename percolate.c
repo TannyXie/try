@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
    */
 
   maxstep = 5*L*L;
-  printfreq = 100; 
+  printfreq = 10; 
   printf("Before Init\n");
 
   if (rank == 0)
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
   step = 1;
   nchange = 1;
 
-  while (step <= maxstep)
+  while (step <= maxstep && nchanges != 0)
     {
       /*
        *  Swap halos up and down
