@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
   step = 1;
   nchange = 1;
 
-  while (step <= maxstep && nchange != 0)
+  while (step <= maxstep)
     {
       /*
        *  Swap halos up and down
