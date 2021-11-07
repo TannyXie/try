@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
   step = 1;
   nchange = 1;
 
-  while (step <= maxstep)
+  while (step <= maxstep && nchange != 0)
     {
       /*
        *  Swap halos up and down
@@ -481,7 +481,7 @@ int main(int argc, char *argv[])
        *  are useful for debugging.
        */
 
-      mapwrite("map.pgm", map, 2);
+      //mapwrite("map.pgm", map, 2);
     }
 
   MPI_Finalize();
