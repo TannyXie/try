@@ -6,7 +6,7 @@
  *  System size L L
  */
 
-#define L 480
+#define L 40
 
 
 /*
