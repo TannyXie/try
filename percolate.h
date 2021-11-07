@@ -3,11 +3,11 @@
  */
 
 /*
- *  System size LM LN
+ *  System size L L
  */
 
-#define LM 40
-#define LN 40
+#define L 40
+#define L 40
 
 
 /*
@@ -19,8 +19,8 @@
 #define NPROC 4
 #define MPROC 4
 
-#define M LM/MPROC
-#define N LN/NPROC
+#define M L/MPROC
+#define N L/NPROC
 
 /*
  *  Prototypes for supplied functions
@@ -30,7 +30,7 @@
  *  Visualisation
  */
 
-void mapwrite(char *percfile, int map[LM][LN], int ncluster);
+void mapwrite(char *percfile, int map[L][L], int ncluster);
 void mapwritedynamic(char *percfile, int **map, int l, int ncluster);
 
 /*
