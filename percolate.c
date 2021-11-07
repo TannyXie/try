@@ -180,6 +180,12 @@ int main(int argc, char *argv[])
         }
           }
       }
+        for( i = 0; i < L; ++i) {
+          for(j = 0; j < L; ++j) {
+            printf("%d ", map[i][j] % 5);
+          }
+          printf("\n");
+        }
 
       printf("percolate: rho = %f, actual density = %f\n",
 	      rho, 1.0 - ((double) nhole)/((double) L*L) );
@@ -479,7 +485,7 @@ int main(int argc, char *argv[])
 
         for( i = 0; i < L; ++i) {
           for(j = 0; j < L; ++j) {
-            printf("%d ", map[i][j]);
+            printf("%d ", map[i][j] % 5);
           }
           printf("\n");
         }
