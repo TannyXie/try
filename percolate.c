@@ -423,7 +423,7 @@ int main(int argc, char *argv[])
   /*
    *  Now gather smallmap back to map
    */
-// TODO:
+  // TODO:
   //MPI_Gather(smallmap, M*N, MPI_INT, map, M*N, MPI_INT, 0, comm);
   if(rank == 0) {
     for(i = 0; i < MPROC; ++i) {
@@ -481,7 +481,7 @@ int main(int argc, char *argv[])
        *  are useful for debugging.
        */
 
-      //mapwrite("map.pgm", map, 2);
+      mapwrite("map.pgm", map, 2);
     }
 
   MPI_Finalize();
