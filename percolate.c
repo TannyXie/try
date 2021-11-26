@@ -16,6 +16,8 @@ int rank_v(int rank, int size)  {
 
 int main(int argc, char *argv[])
 {
+  MPI_Finalize();
+  return 0;
   /*
    *  Define the main arrays for the simulation
    */
