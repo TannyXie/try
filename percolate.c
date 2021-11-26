@@ -399,8 +399,6 @@ int main(int argc, char *argv[])
 
       step++;
     }
-  MPI_Finalize();
-  return 0;
   MPI_Barrier(comm);
   if(rank == 0)
     printf("This is sync3 over\n\n");
