@@ -399,9 +399,9 @@ int main(int argc, char *argv[])
 
       step++;
     }
-    MPI_Barrier(comm);
-    if(rank == 0)
-      printf("This is sync3 over\n\n");
+  MPI_Barrier(comm);
+  if(rank == 0)
+    printf("This is sync3 over\n\n");
 
   /*
    *  We set a maximum number of steps to ensure the algorithm always
@@ -430,7 +430,7 @@ int main(int argc, char *argv[])
         smallmap[i-1][j-1] = old[i][j];
       }
     }
-
+  return 0;
   /*
    *  Now gather smallmap back to map
    */
