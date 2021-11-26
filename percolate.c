@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
   MPI_Barrier(comm);
   if(rank == 0)
     printf("This is sync3 over\n\n");
-
+  printf("My rank is :%d\n", rank);
   /*
    *  We set a maximum number of steps to ensure the algorithm always
    *  terminates. However, if we hit this limit before the algorithm
