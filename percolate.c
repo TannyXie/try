@@ -409,6 +409,7 @@ int main(int argc, char *argv[])
    *  has finished then there must have been a problem (e.g. the value
    *  of maxstep is too small)
    */
+  return 0;
 
   if (rank == 0)
     {
