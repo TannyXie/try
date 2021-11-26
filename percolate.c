@@ -418,6 +418,7 @@ int main(int argc, char *argv[])
           maxstep);
       }
     }
+  return 0;
 
   /*
    *  Copy the centre of old, excluding the halos, into smallmap
@@ -430,7 +431,6 @@ int main(int argc, char *argv[])
         smallmap[i-1][j-1] = old[i][j];
       }
     }
-  return 0;
   /*
    *  Now gather smallmap back to map
    */
