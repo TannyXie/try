@@ -371,7 +371,6 @@ int main(int argc, char *argv[])
        */
 
       MPI_ALLreduce(&nchangelocal, &nchange, 1, MPI_INT, MPI_SUM, comm);
-      printf("Rank %d finished reduce\n", rank);
       /*
        *  Report progress every now and then
        */
@@ -399,10 +398,8 @@ int main(int argc, char *argv[])
 
       step++;
     }
-  printf("My rank is :%d\n", rank);
   MPI_Barrier(MPI_COMM_WORLD);
-  printf("This is sync3 over\n\n");
-  printf("My rank is :%d\n", rank);
+  printf("This is sync3 over from rank %d\n\n", rank);
   /*
    *  We set a maximum number of steps to ensure the algorithm always
    *  terminates. However, if we hit this limit before the algorithm
