@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
   }
 
   MPI_Barrier(comm);
-  printf("This is sync1 over\n");
+  printf("This is sync1 over from rank %d\n", rank);
 
 
   /*
@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
        */
 
       MPI_Reduce(&nchangelocal, &nchange, 1, MPI_INT, MPI_SUM, 0, comm);
-      printf("Rank %d finished reduce", rank);
+      printf("Rank %d finished reduce\n", rank);
       /*
        *  Report progress every now and then
        */
