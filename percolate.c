@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
        *  Compute global number of changes on rank 0
        */
 
-      MPI_ALLreduce(&nchangelocal, &nchange, 1, MPI_INT, MPI_SUM, comm);
+      MPI_Allreduce(&nchangelocal, &nchange, 1, MPI_INT, MPI_SUM, comm);
       /*
        *  Report progress every now and then
        */
