@@ -502,9 +502,8 @@ int main(int argc, char *argv[])
        *  cleanest with only a single cluster, but multiple clusters
        *  are useful for debugging.
        */
-      int map_t[L][L] = {0};
 
-      mapwrite("map.pgm", map_t, 2);
+      mapwrite("map.pgm", map, 2);
     }
 
   MPI_Finalize();
