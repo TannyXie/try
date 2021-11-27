@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
        */
 
       MPI_Reduce(&nchangelocal, &nchange, 1, MPI_INT, MPI_SUM, 0, comm);
-
+      printf("Rank %d finished reduce");
       /*
        *  Report progress every now and then
        */
@@ -399,6 +399,7 @@ int main(int argc, char *argv[])
 
       step++;
     }
+  printf("My rank is :%d\n", rank);
   MPI_Barrier(MPI_COMM_WORLD);
   printf("This is sync3 over\n\n");
   printf("My rank is :%d\n", rank);
