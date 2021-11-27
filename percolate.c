@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
        */
 
       MPI_Reduce(&nchangelocal, &nchange, 1, MPI_INT, MPI_SUM, 0, comm);
-      printf("Rank %d finished reduce");
+      printf("Rank %d finished reduce", rank);
       /*
        *  Report progress every now and then
        */
