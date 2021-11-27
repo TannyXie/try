@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
 
       step++;
     }
-  MPI_Barrier(comm);
+  MPI_Barrier(MPI_COMM_WORLD);
   printf("This is sync3 over\n\n");
   printf("My rank is :%d\n", rank);
   /*
