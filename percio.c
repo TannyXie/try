@@ -19,6 +19,7 @@ int clustersize[MAXCLUSTERID+1];
 void mapwrite(char *percfile, int map[L][L], int ncluster)
 {
   FILE *fp;
+  printf("In mapwrite");
 
   int i, j, colour, npix;
   int clusterid, icluster, maxcluster, prevcluster;
