@@ -19,7 +19,6 @@ int clustersize[MAXCLUSTERID+1];
 void mapwrite(char *percfile, int map[L][L], int ncluster)
 {
   FILE *fp;
-  printf("In mapwrite");
 
   int i, j, colour, npix;
   int clusterid, icluster, maxcluster, prevcluster;
@@ -191,7 +190,7 @@ void mapwrite(char *percfile, int map[L][L], int ncluster)
  *  dynamically allocated, e.g. using the arralloc() routine:
  *
  *  int **map;
- *  map = (int **) L(sizeof(int), 2, L, L);
+ *  map = (int **) arralloc(sizeof(int), 2, L, L);
  *  ...
  *  mapwritedynamic("map.pgm", map, L, 1);
  */
