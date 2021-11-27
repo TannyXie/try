@@ -406,8 +406,6 @@ int main(int argc, char *argv[])
    *  has finished then there must have been a problem (e.g. the value
    *  of maxstep is too small)
    */
-  MPI_Finalize();
-  return 0;
 
   if (rank == 0)
     {
@@ -417,7 +415,6 @@ int main(int argc, char *argv[])
           maxstep);
       }
     }
-  return 0;
 
   /*
    *  Copy the centre of old, excluding the halos, into smallmap
