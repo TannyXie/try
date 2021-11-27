@@ -190,7 +190,7 @@ void mapwrite(char *percfile, int map[L][L], int ncluster)
  *  dynamically allocated, e.g. using the arralloc() routine:
  *
  *  int **map;
- *  map = (int **) arralloc(sizeof(int), 2, L, L);
+ *  map = (int **) L(sizeof(int), 2, L, L);
  *  ...
  *  mapwritedynamic("map.pgm", map, L, 1);
  */
