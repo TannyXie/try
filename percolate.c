@@ -20,7 +20,8 @@ int main(int argc, char *argv[])
    *  Define the main arrays for the simulation
    */
 
-  int old[M+2][N+2], new[M+2][N+2];
+  int old[M+2][N+2] = {0};
+  int new[M+2][N+2] = {0};
 
   /*
    *  Additional array WITHOUT halos for initialisation and IO. This
@@ -28,13 +29,13 @@ int main(int argc, char *argv[])
    *  these two steps in serial
    */
 
-  int map[L][L];
+  int map[L][L] = {0};
 
   /*
    *  Array to store local part of map
    */
 
-  int smallmap[M][N];  
+  int smallmap[M][N] = {0};  
 
   /*
    *  Variables that define the simulation
@@ -350,17 +351,17 @@ int main(int argc, char *argv[])
             */
 
             if (oldval != 0)
-          {
-            if (old[i][j-1] > newval) newval = old[i][j-1];
-            if (old[i][j+1] > newval) newval = old[i][j+1];
-            if (old[i-1][j] > newval) newval = old[i-1][j];
-            if (old[i+1][j] > newval) newval = old[i+1][j];
+            {
+              if (old[i][j-1] > newval) newval = old[i][j-1];
+              if (old[i][j+1] > newval) newval = old[i][j+1];
+              if (old[i-1][j] > newval) newval = old[i-1][j];
+              if (old[i+1][j] > newval) newval = old[i+1][j];
 
-            if (newval != oldval)
-              {
-                ++nchangelocal;
-              }
-          }
+              if (newval != oldval)
+                {
+                  ++nchangelocal;
+                }
+            }
 
             new[i][j] = newval;
           }
