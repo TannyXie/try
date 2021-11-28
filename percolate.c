@@ -14,6 +14,40 @@ int rank_v(int rank, int size)  {
  * Simple parallel program to test for percolation of a cluster.
  */
 
+int update(int old[][N+2], int new[][N+2]) {
+  int newval;
+  int oldval;
+  int nchangelocal;
+  for (i=1; i<=M; i++){
+    for (j=1; j<=N; j++)
+      {
+        oldval = old[i][j];
+        newval = oldval;
+
+        /*
+        * Set new[i][j] to be the maximum value of old[i][j]
+        * and its four nearest neighbours
+        */
+
+        if (oldval != 0)
+        {
+          if (old[i][j-1] > newval) newval = old[i][j-1];
+          if (old[i][j+1] > newval) newval = old[i][j+1];
+          if (old[i-1][j] > newval) newval = old[i-1][j];
+          if (old[i+1][j] > newval) newval = old[i+1][j];
+
+          if (newval != oldval)
+            {
+              ++nchangelocal;
+            }
+        }
+
+        new[i][j] = newval;
+      }
+  }
+  return nchangelocal;
+}
+
 int main(int argc, char *argv[])
 {
   /*
@@ -68,8 +102,8 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &size);
   MPI_Comm_rank(comm, &rank);
 // TODO:
-  left = rank - 1;
-  right = rank + 1;
+  left = (rank / NPROC)*NPROC + (rank - 1 + NPROC) % NPROC;
+  right = (rank / NPROC)*NPROC + (rank + 1 + NPROC) % NPROC;
   down = rank - NPROC;
   up = rank + NPROC;
   printf("size: %d\n", size);
@@ -230,6 +264,15 @@ int main(int argc, char *argv[])
     }
   }
 
+  if(rank == 1){
+    for(int i=0; i < MPROC; ++i) {
+      for(int j=0; j < NPROC; ++j) {
+        printf("%2d ", smallmap[i][j]);
+      }
+      printf("\n");
+    }
+  }
+
   MPI_Barrier(comm);
   printf("This is sync1 over from rank %d\n", rank);
 
@@ -338,34 +381,7 @@ int main(int argc, char *argv[])
 
       nchangelocal = 0;
 
-      for (i=1; i<=M; i++)
-      {
-        for (j=1; j<=N; j++)
-          {
-            oldval = old[i][j];
-            newval = oldval;
-
-            /*
-            * Set new[i][j] to be the maximum value of old[i][j]
-            * and its four nearest neighbours
-            */
-
-            if (oldval != 0)
-            {
-              if (old[i][j-1] > newval) newval = old[i][j-1];
-              if (old[i][j+1] > newval) newval = old[i][j+1];
-              if (old[i-1][j] > newval) newval = old[i-1][j];
-              if (old[i+1][j] > newval) newval = old[i+1][j];
-
-              if (newval != oldval)
-                {
-                  ++nchangelocal;
-                }
-            }
-
-            new[i][j] = newval;
-          }
-      }
+      nchangelocal = update(old, new);
 
       /*
        *  Compute global number of changes on rank 0
