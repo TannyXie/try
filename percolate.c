@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
    */
 
   MPI_Comm comm = MPI_COMM_WORLD;
-  MPI_Status status;
+  MPI_Status status, statuses[8];
 
   int size, rank, left, right, up, down, temp;
   int tag = 1;
@@ -379,43 +379,23 @@ int main(int argc, char *argv[])
       * combination of issend/recv or ssend/irecv)
       */
     // TODO:
-    MPI_Request request_s, request_r;
-    
-    MPI_Sendrecv(&old[M][1], N, MPI_INT, down, tag,
-      &old[0][1], N, MPI_INT, up, tag,
-      comm, &status);
-    MPI_Sendrecv(&old[1][1], N, MPI_INT, up, tag,
-      &old[M+1][1], N, MPI_INT, down, tag,
-      comm, &status);
-    MPI_Barrier(comm);
-    if(rank == 0 && step == 1)
-      printf("This is sync21 over\n");
-    MPI_Issend(&old[1][1], N, MPI_INT, down, tag, comm, &request_s);
-    MPI_Irecv(&old[M+1][1], N, MPI_INT, up, tag, comm, &request_r);
-    MPI_Wait(&request_s, &status);
-    MPI_Wait(&request_r, &status);
-    MPI_Barrier(comm);
-    if(rank == 0 && step == 1)
-      printf("This is sync22 over\n");
+    MPI_Request requests[8],request_s,request_r; // for send and receive for up down, left right
     int temp_send_1[M], temp_send_N[M], temp_recv_0[M], temp_recv_Np1[M];
     for(i = 0; i < M; ++i) {
       temp_send_1[i] = old[i+1][1];
       temp_send_N[i] = old[i+1][N];
     }
-    MPI_Issend(temp_send_1, M, MPI_INT, left, tag, comm, &request_s);
-    MPI_Irecv(temp_recv_Np1, N, MPI_INT, right, tag, comm, &request_r);
-    MPI_Wait(&request_s, &status);
-    MPI_Wait(&request_r, &status);
-    MPI_Barrier(comm);
-    if(rank == 0 && step == 1)
-      printf("This is sync23 over\n");
-    MPI_Issend(temp_send_N, M, MPI_INT, right, tag, comm, &request_s);
-    MPI_Irecv(temp_recv_0, N, MPI_INT, left, tag, comm, &request_r);
-    MPI_Wait(&request_s, &status);
-    MPI_Wait(&request_r, &status);
-    MPI_Barrier(comm);
-    if(rank == 0 && step == 1)
-      printf("This is sync24 over\n");
+
+    MPI_Issend(&old[M][1], N, MPI_INT, down, tag, comm, &requests[0]);
+    MPI_Irecv(&old[0][1], N, MPI_INT, up, tag, comm, &requests[1]);
+    MPI_Issend(&old[1][1], N, MPI_INT, up, tag, comm, &requests[2]);
+    MPI_Irecv(&old[M+1][1], N, MPI_INT, down, tag, comm, &requests[3]);
+    MPI_Issend(temp_send_1, M, MPI_INT, left, tag, comm, &requests[4]);
+    MPI_Irecv(temp_recv_Np1, N, MPI_INT, right, tag, comm, &requests[5]);
+    MPI_Issend(temp_send_N, M, MPI_INT, right, tag, comm, &requests[6]);
+    MPI_Irecv(temp_recv_0, N, MPI_INT, left, tag, comm, &requests[7]);
+    MPI_Waitall(8, requests, statuses);
+
     
     for(i = 0; i < M; ++i){
       old[i+1][0] = temp_recv_0[i];
