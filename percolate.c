@@ -268,22 +268,24 @@ int main(int argc, char *argv[])
    */
 
   if (rank != 0) {
+    MPI_Request requests_s[M];
+    MPI_Status statuses_s[M];
     for (i = 0; i < M; ++i) {
-      MPI_Recv(&smallmap[i][0], N, MPI_INT, 0, 0, comm, &status);
-      //int a[N];
-      //MPI_Recv(a, N, MPI_INT, 0, 0, comm, &status);
+      MPI_Irecv(&smallmap[i][0], N, MPI_INT, 0, tag, comm, &requests_s[i]);
+
     }
-    //printf("Rank %d recv over\n", rank);
+    MPI_Waitall(M, requests_s, statuses_s);
   }
   else {
+    MPI_Request requests_s[M];
+    MPI_Status statuses_s[M];
     for(i = 0; i < MPROC; ++i) {
       for(j = 0; j < NPROC; ++j) {
         if (i == 0 && j == 0) continue;
         for(k = 0; k < M; ++k) {
-          //int a[N] = {0};
-          MPI_Ssend(&map[k+i*M][j*N], N, MPI_INT, i*MPROC+j, 0, comm);
-          //MPI_Ssend(a, N, MPI_INT, i*MPROC+j, 0, comm);
+          MPI_Issend(&map[k+i*M][j*N], N, MPI_INT, i*MPROC+j, tag, comm, &requests_s[k]);
         }
+        MPI_Waitall(M, requests_s, statuses_s);
         printf("Rank %d send over\n", i*MPROC+j);
       }
     }
@@ -433,7 +435,7 @@ int main(int argc, char *argv[])
     nchangelocal = update(old, new);
       printf("rank %d, nchangelocal : %d\n", rank, nchangelocal);
     
- /*
+  /*
   if(rank == 1){
     printf("In rank 1, after updating, in step: %d, the small map looks like\n", step);
     for(int i=0; i < M+2; ++i) {
@@ -543,24 +545,28 @@ printf("---------step:%d---------\n", step);
   /*
    *  Copy the centre of old, excluding the halos, into smallmap
    */
-  
-  for (i=1; i<=M; i++)
-    {
-      for (j=1; j<=N; j++)
-      {
-        smallmap[i-1][j-1] = old[i][j];
-      }
+  int maptp[L][L] = {0};
+  for(i=0; i<L; ++i ) {
+    for(j=0;j<N;++j){
+      maptp[i][j] = 0;
     }
+  }
+  for (i=1; i<=M; i++)
+  {
+    for (j=1; j<=N; j++)
+    {
+      smallmap[i-1][j-1] = old[i][j];
+      maptp[i+rank/NPROC*M][j+rank%NPROC*N] = smallmap[i][j];
+    }
+  }
+  //this method can replace the following code block
+  MPI_Reduce(&maptp[0][0], &map[0][0], L*L, MPI_INT, MPI_SUM, 0, comm);
   /*
    *  Now gather smallmap back to map
    */
   // TODO:
   //MPI_Gather(smallmap, M*N, MPI_INT, map, M*N, MPI_INT, 0, comm);
-  for(i=0; i<L; ++i ) {
-    for(j=0;j<N;++j){
-      map[i][j] = 0;
-    }
-  }
+  /*
   if(rank == 0) {
     for(i = 0; i < MPROC; ++i) {
       for(j = 0; j < NPROC; ++j) {
@@ -588,6 +594,7 @@ printf("---------step:%d---------\n", step);
       MPI_Ssend(&smallmap[i][0], N, MPI_INT, 0, tag, comm);
     }
   }
+  */
   MPI_Barrier(comm);
   if(rank == 0)
     printf("This is sync4 over\n\n");
