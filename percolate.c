@@ -477,8 +477,8 @@ int main(int argc, char *argv[])
     {
       if (rank == 0)
         {
-                printf("percolate: changes on step %d is %d\n",
-                      step, nchange);
+                printf("percolate: changes on step %d is %d, average is %f\n",
+                      step, nchange, ((float)nchange)/(L*L));
         }
     }
 
