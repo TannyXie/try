@@ -6,7 +6,7 @@
  *  System size L L
  */
 
-#define L 40
+#define L 8
 
 
 /*
@@ -15,8 +15,8 @@
  */
 
 // TODO:
-#define NPROC 4
-#define MPROC 4
+#define NPROC 2
+#define MPROC 2
 
 #define M L/MPROC
 #define N L/NPROC
