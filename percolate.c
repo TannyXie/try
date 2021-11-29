@@ -47,6 +47,20 @@ int update(int old[][N+2], int new[][N+2]) {
   return nchangelocal;
 }
 
+int get_nonperiodic_l(int rank) {
+  int left_nonperiodic;
+  int ratio = 6;
+  if((rank % NPROC + 1) * N <= L/ratio){
+    left_nonperiodic = N;
+  }
+  else if((rank % NPROC) * N >= L/ratio){
+    left_nonperiodic = 0;
+  } else {
+    left_nonperiodic = L/ratio - (rank % NPROC) * N;
+  }
+  return left_nonperiodic;
+}
+
 int main(int argc, char *argv[])
 {
   /*
@@ -93,8 +107,10 @@ int main(int argc, char *argv[])
   MPI_Comm comm = MPI_COMM_WORLD;
   MPI_Status status;
 
-  int size, rank, left, right, up, down;
+  int size, rank, left, right, up, down, temp;
   int tag = 1;
+  int left_nonperiodic, right_nonperiodic;
+  int upmost, downmost;
 
   MPI_Init(&argc, &argv);
 
@@ -103,12 +119,22 @@ int main(int argc, char *argv[])
 // TODO:
   left = (rank / NPROC)*NPROC + (rank - 1 + NPROC) % NPROC;
   right = (rank / NPROC)*NPROC + (rank + 1 + NPROC) % NPROC;
-  down = rank + NPROC;
-  up = rank - NPROC;
+  down = (rank + NPROC + size) % size;
+  up = (rank - NPROC + size) % size;
   printf("size: %d\n", size);
   if(rank == 1) {
     printf("rank has down process rank %d\n", down);
   }
+
+  
+  left_nonperiodic = get_nonperiodic_l(rank);
+  temp = rank;
+  rank = 3 - (rank % NPROC);
+  right_nonperiodic = get_nonperiodic_l(rank);
+  rank = temp;
+  upmost = (rank / NPROC);
+  downmost = (size-1-rank) / NPROC;
+  printf("rank : %d, left_nonperiodic:%d, right_nonperiodic: %d\n", rank, left_nonperiodic, right_nonperiodic);
 
   /*
    * Non-periodic boundary conditions
@@ -396,9 +422,26 @@ int main(int argc, char *argv[])
       old[i+1][N+1] = temp_recv_Np1[i];
     }
 
+    if(upmost == 0){
+      for(i = 0; i < left_nonperiodic; ++i) {
+        old[0][i+1] = 0;
+      }
+      for(i = 0; i < right_nonperiodic; ++i) {
+        old[0][M-i] = 0;
+      }
+    }
+    else if(downmost == 0) {
+      for(i = 0; i < left_nonperiodic; ++i) {
+        old[M+1][i+1] = 0;
+      }
+      for(i = 0; i < right_nonperiodic; ++i) {
+        old[M+1][M-i] = 0;
+      }
+    }
+
     nchangelocal = 0;
-  if(rank == 1){
-    printf("In rank 1, after receiving data in step: %d, the small map looks like\n", step);
+  if(rank == 0){
+    printf("In rank 0, after receiving data in step: %d, the small map looks like\n", step);
     for(int i=0; i < M+2; ++i) {
       for(int j=0; j < N+2; ++j) {
         printf("%2d ", old[i][j]);
