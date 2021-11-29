@@ -17,7 +17,7 @@ int rank_v(int rank, int size)  {
 int update(int old[][N+2], int new[][N+2]) {
   int newval;
   int oldval;
-  int nchangelocal;
+  int nchangelocal = 0;
   for (int i=1; i<=M; i++){
     for (int j=1; j<=N; j++)
       {
@@ -106,8 +106,8 @@ int main(int argc, char *argv[])
   down = rank + NPROC;
   up = rank - NPROC;
   printf("size: %d\n", size);
-  if(rank == 0) {
-    printf("rank has up process rank %d\n", up);
+  if(rank == 1) {
+    printf("rank has down process rank %d\n", down);
   }
 
   /*
@@ -354,20 +354,13 @@ int main(int argc, char *argv[])
       */
     // TODO:
     MPI_Request request_s, request_r;
-    //printf("Rank %d sending to rank %d, recving from %d.\n", rank, down, up);
     
     MPI_Sendrecv(&old[M][1], N, MPI_INT, down, tag,
       &old[0][1], N, MPI_INT, up, tag,
       comm, &status);
-    MPI_Sendrecv(&old[1][1], N, MPI_INT, down, tag,
-      &old[M+1][1], N, MPI_INT, up, tag,
+    MPI_Sendrecv(&old[1][1], N, MPI_INT, up, tag,
+      &old[M+1][1], N, MPI_INT, down, tag,
       comm, &status);
-      /*
-    MPI_Issend(&old[M][1], N, MPI_INT, down, tag, comm, &request_s);
-    MPI_Irecv(&old[0][1], N, MPI_INT, up, tag, comm, &request_r);
-    MPI_Wait(&request_s, &status);
-    MPI_Wait(&request_r, &status);
-    */
     MPI_Barrier(comm);
     if(rank == 0 && step == 1)
       printf("This is sync21 over\n");
@@ -378,14 +371,6 @@ int main(int argc, char *argv[])
     MPI_Barrier(comm);
     if(rank == 0 && step == 1)
       printf("This is sync22 over\n");
-    /*
-    MPI_Sendrecv(&old[1][1], N, MPI_INT, down, tag,
-      &old[M+1][1], N, MPI_INT, up, tag,
-      comm, &status);
-    MPI_Sendrecv(&old[1][1], N, MPI_INT, up, tag, 
-      &old[M+1][1], N, MPI_INT, down, tag,
-      comm, &status);
-      */
     int temp_send_1[M], temp_send_N[M], temp_recv_0[M], temp_recv_Np1[M];
     for(i = 0; i < M; ++i) {
       temp_send_1[i] = old[i+1][1];
@@ -405,14 +390,6 @@ int main(int argc, char *argv[])
     MPI_Barrier(comm);
     if(rank == 0 && step == 1)
       printf("This is sync24 over\n");
-    /*
-    MPI_Sendrecv(temp_send_1, M, MPI_INT, left, tag,
-      temp_recv_Np1, N, MPI_INT, right, tag,
-      comm, &status);
-    MPI_Sendrecv(temp_send_N, M, MPI_INT, right, tag, 
-      temp_recv_0, N, MPI_INT, left, tag,
-      comm, &status);
-      */
     
     for(i = 0; i < M; ++i){
       old[i+1][0] = temp_recv_0[i];
@@ -430,33 +407,10 @@ int main(int argc, char *argv[])
     }
   }
 
-//    nchangelocal = update(old, new);
-  for (int i=1; i<=M; i++){
-    for (int j=1; j<=N; j++)
-      {
-        oldval = old[i][j];
-        newval = oldval;
-
-        /*
-        * Set new[i][j] to be the maximum value of old[i][j]
-        * and its four nearest neighbours
-        */
-
-        if (oldval != 0)
-        {
-          if (old[i][j-1] > newval) newval = old[i][j-1];
-          if (old[i][j+1] > newval) newval = old[i][j+1];
-          if (old[i-1][j] > newval) newval = old[i-1][j];
-          if (old[i+1][j] > newval) newval = old[i+1][j];
-
-          if (newval != oldval){
-            ++nchangelocal;
-          }
-        }
-
-        new[i][j] = newval;
-      }
-  }
+    nchangelocal = update(old, new);
+      printf("rank %d, nchangelocal : %d\n", rank, nchangelocal);
+    
+ /*
   if(rank == 1){
     printf("In rank 1, after updating, in step: %d, the small map looks like\n", step);
     for(int i=0; i < M+2; ++i) {
@@ -466,6 +420,7 @@ int main(int argc, char *argv[])
       printf("\n");
     }
   }
+  */
     /*
       *  Compute global number of changes on rank 0
       */
