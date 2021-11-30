@@ -83,6 +83,10 @@ void initializeMap(int map[][L], int seed, int size, int maxstep) {
     rho, 1.0 - ((double) nhole)/((double) L*L) );
 }
 
+/**
+ * Map is initialized only in rank 0 and rank 0 needs to scatter is
+ * to other ranks.
+ **/
 void scatterMap(int smallmap[][N], int map[][L], int rank, MPI_Comm comm) {
   int i,j,k;
   int tag = 0;
@@ -114,6 +118,9 @@ void scatterMap(int smallmap[][N], int map[][L], int rank, MPI_Comm comm) {
   }
 }
 
+/**
+ * Print the content of the old to debug.
+ **/
 void printOldMap(int old[][N+2], int rank, int step, MPI_Comm comm) {
   if(rank == 0){
     printf("In rank 0, after receiving data in step: %d, the small map looks like\n", step);
@@ -160,10 +167,10 @@ void printOldMap(int old[][N+2], int rank, int step, MPI_Comm comm) {
   MPI_Barrier(comm);
 }
 
-/*
- * Simple parallel program to test for percolation of a cluster.
+/**
+ * update the whole map after receiving the data from its neighbours
+ * updated result is in new map
  */
-
 int update(int old[][N+2], int new[][N+2]) {
   int newval;
   int oldval;
@@ -186,7 +193,7 @@ int update(int old[][N+2], int new[][N+2]) {
           if (old[i-1][j] > newval) newval = old[i-1][j];
           if (old[i+1][j] > newval) newval = old[i+1][j];
 
-          if (newval != oldval){
+          if (newval != oldval) {
             ++nchangelocal;
           }
         }
@@ -211,6 +218,10 @@ int getNonperiodicLeft(int rank) {
   return left_nonperiodic;
 }
 
+/**
+ * Initialise the old array: copy the LxL array smallmap to the centre of
+ * old, and set the halo values to zero.
+ **/
 void initializeOldMap(int old[][N+2], int smallmap[][N]) {
   int i,j;
   for (i=1; i <= M; i++)
@@ -234,6 +245,9 @@ void initializeOldMap(int old[][N+2], int smallmap[][N]) {
   }
 }
 
+/**
+ * Swap data with its neighbours
+ **/
 void transmit(int old[][N+2], int left_nonperiodic, int right_nonperiodic, int upmost, int downmost, int up, int down, int left, int right, int tag, MPI_Comm comm) {
   MPI_Request requests[8],request_s,request_r; // for send and receive for up down, left right
   MPI_Status statuses[8];
@@ -279,25 +293,22 @@ void transmit(int old[][N+2], int left_nonperiodic, int right_nonperiodic, int u
 }
 
 void reduceOldMaps(int old[][N+2], int map[][L], int rank, MPI_Comm comm) {
-  int maptp[L][L];
+  int maptp[L][L] = {0};
   int i, j;
-  for(i=0; i<L; ++i ) {
-    for(j=0;j<L;++j){
-      maptp[i][j] = 0;
-    }
-  }
-  for (i=1; i<=M; i++)
-  {
-    for (j=1; j<=N; j++)
-    {
-      //smallmap[i-1][j-1] = old[i][j];
-      maptp[i+rank/NPROC*M][j+rank%NPROC*N] = old[i][j];
+  memset(maptp, 0, sizeof(int)*L*L);
+  for (i=0; i<M; i++) {
+    for (j=0; j<N; j++) {
+      maptp[i+rank/NPROC*M][j+rank%NPROC*N] = old[i+1][j+1];
     }
   }
   //this method can replace the following code block
   MPI_Reduce(&maptp[0][0], &map[0][0], L*L, MPI_INT, MPI_SUM, 0, comm);
 }
 
+/*
+  *  Test to see if percolation occurred by looking for positive numbers
+  *  that appear on both the top and bottom edges
+  */
 void checkPercolate(int map[][L]){
   int perc = 0, itop, ibot, i, j;
 
@@ -337,6 +348,15 @@ void checkPercolate(int map[][L]){
   mapwrite("map.pgm", map, 2);
 }
 
+/**
+ * old: size [M+2][N+2]
+ * new: size [M+2][N+2]
+ * map: size [L][L]
+ * smallmap: size [M][N]
+ * old and new is smallmap with halo
+ * 
+ * 
+ **/
 int main(int argc, char *argv[])
 {
   /*
@@ -368,6 +388,8 @@ int main(int argc, char *argv[])
   int i, j, k, w, step, maxstep, oldval, newval;
   int nchangelocal, nchange, printfreq;
   int itop, ibot, perc;
+  int left_nonperiodic, right_nonperiodic;
+  int upmost, downmost;
 
   /*
    *  MPI variables
@@ -378,14 +400,12 @@ int main(int argc, char *argv[])
 
   int size, rank, left, right, up, down, temp;
   int tag = 1;
-  int left_nonperiodic, right_nonperiodic;
-  int upmost, downmost;
 
   MPI_Init(&argc, &argv);
 
   MPI_Comm_size(comm, &size);
   MPI_Comm_rank(comm, &rank);
-// TODO:
+  // TODO:
   left = (rank / NPROC)*NPROC + (rank - 1 + NPROC) % NPROC;
   right = (rank / NPROC)*NPROC + (rank + 1 + NPROC) % NPROC;
   down = (rank + NPROC + size) % size;
@@ -405,47 +425,26 @@ int main(int argc, char *argv[])
   downmost = (size-1-rank) / NPROC;
   printf("rank : %d, left_nonperiodic:%d, right_nonperiodic: %d\n", rank, left_nonperiodic, right_nonperiodic);
 
-  /*
-   * Non-periodic boundary conditions
-   *
-   * Note that the special rank of MPI_PROC_NULL is a "black hole" for
-   * communications. Using this value for processes off the edges of the
-   * image means there is no additional logic needed to ensure processes
-   * at the edges do not attempt to send to or receive from invalid
-   * ranks (i.e. rank = -1 and rank = NPROC).
-   *
-   * Proper solution would compute neighbours with a Cartesian topology
-   * and MPI_Cart_shift, where MPI_PROC_NULL is assigned automatically.
-   */
-
   rank_v(&up, &down, &left, &right, size);
 
-  if (NPROC * MPROC != size)
-    {
-      if (rank == 0)
-      {
-        printf("percolate: ERROR, NPROC = %d but running on %d\n",
-        NPROC, size);
-      }
-
-      MPI_Finalize();
-      return 0;
-  }
-
-  if (argc != 2)
-    {
-      if (rank == 0)
-      {
-        printf("Usage: percolate <seed>\n");
-      }
-
-      MPI_Finalize();
-      return 0;
+  if (NPROC * MPROC != size) {
+    if (rank == 0) {
+      printf("percolate: ERROR, NPROC = %d but running on %d\n",
+      NPROC, size);
     }
 
-  /*
-   *  Update for a fixed number of steps, periodically report progress
-   */
+    MPI_Finalize();
+    return 0;
+  }
+
+  if (argc != 2) {
+    if (rank == 0){
+      printf("Usage: percolate <seed>\n");
+    }
+
+    MPI_Finalize();
+    return 0;
+  }
 
   maxstep = 5*L*L;
   printfreq = 10; 
@@ -457,24 +456,8 @@ int main(int argc, char *argv[])
 
   MPI_Barrier(comm);
 
-  /*
-   *  Now scatter map to smallmap
-   */
-
   // TODO:
-  //MPI_Scatter(map, M*N, MPI_INT, smallmap, M*N, MPI_INT, 0, comm);
-  /**
-   * For MPROC * NPROC processes, the rank 0 process needs to scatter the map to 
-   * them. So there would be two loops, range from 0 to MPROC, and from 0 to NPROC.
-   */
-
   scatterMap(smallmap, map, rank, comm);
-
-
-  /*
-   * Initialise the old array: copy the LxL array smallmap to the centre of
-   * old, and set the halo values to zero.
-   */
 
   initializeOldMap(old, smallmap);
 
@@ -484,48 +467,34 @@ int main(int argc, char *argv[])
   nchange = 1;
 
   while (step <= maxstep && nchange != 0) {
-    /*
-      *  Swap halos up and down
-      */
-
-    /*
-      * Communications is done using the sendrecv routine; a proper
-      * solution would use non-blocking communications (e.g. some
-      * combination of issend/recv or ssend/irecv)
-      */
     // TODO:
     transmit(old, left_nonperiodic, right_nonperiodic, upmost, downmost, up, down, left, right, tag, comm);
     printOldMap(old, rank, step, comm);
 
+    /**
+     * Update old map and store to new map.
+     * Return the number of elements begin updated.
+     **/
     nchangelocal = update(old, new);
-      printf("rank %d, nchangelocal : %d\n", rank, nchangelocal);
+    printf("rank %d, nchangelocal : %d\n", rank, nchangelocal);
     
-    /*
-      *  Compute global number of changes on rank 0
-      */
-
+    /**
+     * Compute global number of changes on rank 0
+     **/
     MPI_Allreduce(&nchangelocal, &nchange, 1, MPI_INT, MPI_SUM, comm);
-    /*
-      *  Report progress every now and then
-      */
-
-    if (step % printfreq == 0)
-    {
-      if (rank == 0)
-        {
-                printf("percolate: changes on step %d is %d, average is %f\n",
-                      step, nchange, ((float)nchange)/(L*L));
-        }
+    /**
+     * Report progress every now and then
+     **/
+    if (step % printfreq == 0 && rank == 0){
+          printf("percolate: changes on step %d is %d, average is %f\n",
+                step, nchange, ((float)nchange)/(L*L));
     }
 
-    /*
-      *  Copy back in preparation for next step, omitting halos
-      */
-
-    for (i=1; i<=M; i++)
-    {
-      for (j=1; j<=N; j++)
-        {
+    /**
+     * Copy back in preparation for next step, omitting halos
+     **/
+    for (i=1; i<=M; i++){
+      for (j=1; j<=N; j++){
           old[i][j] = new[i][j];
         }
     }
@@ -541,50 +510,23 @@ int main(int argc, char *argv[])
    *  of maxstep is too small)
    */
 
-  if (rank == 0)
-    {
-      if (nchange != 0)
-      {
-              printf("percolate: WARNING max steps = %d reached but nchange != 0\n",
-          maxstep);
-      }
-    }
+  if (rank == 0 && nchange != 0){
+            printf("percolate: WARNING max steps = %d reached but nchange != 0\n",
+        maxstep);
+  }
 
   /*
    *  Copy the centre of old, excluding the halos, into smallmap
    */
-  //reduceOldMaps(&old[0][0], &map[0][0], rank, comm);
-  
-  int maptp[L][L] = {0};
-  for(i=0; i<L; ++i ) {
-    for(j=0;j<L;++j){
-      maptp[i][j] = 0;
-    }
-  }
-  for (i=1; i<=M; i++)
-  {
-    for (j=1; j<=N; j++)
-    {
-      //smallmap[i-1][j-1] = old[i][j];
-      maptp[i+rank/NPROC*M][j+rank%NPROC*N] = old[i][j];
-    }
-  }
-  //this method can replace the following code block
-  MPI_Reduce(&maptp[0][0], &map[0][0], L*L, MPI_INT, MPI_SUM, 0, comm);
+  reduceOldMaps(old, map, rank, comm);
   
   /*
    *  Now gather smallmap back to map
    */
   // TODO:
-  //MPI_Gather(smallmap, M*N, MPI_INT, map, M*N, MPI_INT, 0, comm);
   MPI_Barrier(comm);
   if(rank == 0)
     printf("This is sync4 over\n\n");
-
-  /*
-   *  Test to see if percolation occurred by looking for positive numbers
-   *  that appear on both the top and bottom edges
-   */
 
   if (rank == 0){
     checkPercolate(map);
