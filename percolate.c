@@ -231,28 +231,24 @@ void initializeOldMap(int old[][N+2], int smallmap[][N]) {
 void transmit(int old[][N+2], int left_nonperiodic, int right_nonperiodic, int upmost, int downmost, int up, int down, int left, int right, int tag, MPI_Comm comm) {
   MPI_Request requests[8],request_s,request_r; // for send and receive for up down, left right
   MPI_Status statuses[8];
+  MPI_Datatype column_type;
+  MPI_Type_vector(M, 1, N + 2, MPI_INT, &column_type);
+  MPI_Type_commit(&column_type);
+
   int i,j;
-  int temp_send_1[M], temp_send_N[M], temp_recv_0[M], temp_recv_Np1[M];
-  for(i = 0; i < M; ++i) {
-    temp_send_1[i] = old[i+1][1];
-    temp_send_N[i] = old[i+1][N];
-  }
 
   MPI_Issend(&old[M][1], N, MPI_INT, down, tag, comm, &requests[0]);
   MPI_Irecv(&old[0][1], N, MPI_INT, up, tag, comm, &requests[1]);
   MPI_Issend(&old[1][1], N, MPI_INT, up, tag, comm, &requests[2]);
   MPI_Irecv(&old[M+1][1], N, MPI_INT, down, tag, comm, &requests[3]);
-  MPI_Issend(temp_send_1, M, MPI_INT, left, tag, comm, &requests[4]);
-  MPI_Irecv(temp_recv_Np1, N, MPI_INT, right, tag, comm, &requests[5]);
-  MPI_Issend(temp_send_N, M, MPI_INT, right, tag, comm, &requests[6]);
-  MPI_Irecv(temp_recv_0, N, MPI_INT, left, tag, comm, &requests[7]);
+
+  MPI_Issend(&old[1][1], 1, column_type, left, tag, comm, &requests[4]);
+  MPI_Irecv(&old[1][N+1], 1, column_type, right, tag, comm, &requests[5]);
+  MPI_Issend(&old[1][N], 1, column_type, right, tag, comm, &requests[6]);
+  MPI_Irecv(&old[1][0], 1, column_type, left, tag, comm, &requests[7]);
+  
   MPI_Waitall(8, requests, statuses);
 
-  
-  for(i = 0; i < M; ++i){
-    old[i+1][0] = temp_recv_0[i];
-    old[i+1][N+1] = temp_recv_Np1[i];
-  }
 
   if(upmost == 0){
     for(i = 0; i < left_nonperiodic; ++i) {
