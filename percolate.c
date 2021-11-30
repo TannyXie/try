@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
+#include <string.h>
 
 #include "percolate.h"
 void rank_v(int* up, int* down, int* left, int* right, int size)  {
@@ -88,32 +89,11 @@ void initializeMap(int map[][L], int seed, int size, int maxstep) {
  * to other ranks.
  **/
 void scatterMap(int smallmap[][N], int map[][L], int rank, MPI_Comm comm) {
-  int i,j,k;
-  int tag = 0;
-  if (rank != 0) {
-    MPI_Request requests_s[M];
-    MPI_Status statuses_s[M];
-    for (i = 0; i < M; ++i) {
-      MPI_Irecv(&smallmap[i][0], N, MPI_INT, 0, tag, comm, &requests_s[i]);
-    }
-    MPI_Waitall(M, requests_s, statuses_s);
-  } else {
-    MPI_Request requests_s[M];
-    MPI_Status statuses_s[M];
-    for(i = 0; i < MPROC; ++i) {
-      for(j = 0; j < NPROC; ++j) {
-        if (i == 0 && j == 0) continue;
-        for(k = 0; k < M; ++k) {
-          MPI_Issend(&map[k+i*M][j*N], N, MPI_INT, i*MPROC+j, tag, comm, &requests_s[k]);
-        }
-        MPI_Waitall(M, requests_s, statuses_s);
-        printf("Rank %d send over\n", i*MPROC+j);
-      }
-    }
-    for(i = 0; i < M; ++i) {
-      for(j = 0; j < N; ++j) {
-        smallmap[i][j] = map[i][j];
-      }
+  MPI_Bcast(&map[0][0], L * L, MPI_INT, 0, comm);
+  for(int i=0; i < M; ++i) {
+    for(int j=0; j < N; ++j){
+      int coordx = rank / NPROC, coordy = rank % NPROC;
+      smallmap[i][j] = map[coordx * M + i][coordy * N + j];
     }
   }
 }
@@ -295,7 +275,7 @@ void transmit(int old[][N+2], int left_nonperiodic, int right_nonperiodic, int u
 void reduceOldMaps(int old[][N+2], int map[][L], int rank, MPI_Comm comm) {
   int maptp[L][L] = {0};
   int i, j;
-  memset(maptp, 0, sizeof(int)*L*L);
+  memset((void*)maptp, 0, sizeof(int)*L*L);
   for (i=0; i<M; i++) {
     for (j=0; j<N; j++) {
       maptp[i+rank/NPROC*M][j+rank%NPROC*N] = old[i+1][j+1];
@@ -348,15 +328,6 @@ void checkPercolate(int map[][L]){
   mapwrite("map.pgm", map, 2);
 }
 
-/**
- * old: size [M+2][N+2]
- * new: size [M+2][N+2]
- * map: size [L][L]
- * smallmap: size [M][N]
- * old and new is smallmap with halo
- * 
- * 
- **/
 int main(int argc, char *argv[])
 {
   /*
