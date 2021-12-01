@@ -6,8 +6,7 @@
  *  System size L L
  */
 
-#define L 8
-
+//#define L 16
 
 /*
  *  Use 1D decomposition over NPROC processes across first dimension
@@ -15,12 +14,13 @@
  */
 
 // TODO:
+/*
 #define NPROC 2
 #define MPROC 2
 
 #define M L/MPROC
 #define N L/NPROC
-
+*/
 /*
  *  Prototypes for supplied functions
  */
@@ -29,7 +29,7 @@
  *  Visualisation
  */
 
-void mapwrite(char *percfile, int map[L][L], int ncluster);
+void mapwrite(char *percfile, int** map, int ncluster);
 void mapwritedynamic(char *percfile, int **map, int l, int ncluster);
 
 /*

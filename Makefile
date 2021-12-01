@@ -1,20 +1,23 @@
 MF=	Makefile
 
 CC=	mpicc
-CFLAGS=	-cc=icc -O3 -Wall
+#CFLAGS=	-cc=icc -O3 -Wall
+CFLAGS=
 
 LFLAGS= $(CFLAGS)
 
 EXE=	percolate
 
 INC= \
-	percolate.h
+	percolate.h \
+	arralloc.h
 
 SRC= \
 	percolate.c \
 	percio.c \
 	unirand.c \
-	utils.c
+	utils.c \
+	arralloc.c
 
 #
 # No need to edit below this line
