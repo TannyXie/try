@@ -15,7 +15,7 @@ enum direction {LEFT, RIGHT, UP, DOWN};
 
 int getNonperiodicLeft(int coord[2]);
 
-int MPI_Get_info(int* s, int* r, int coord[], int neighbours[], int mesh[], int periodic[], int boundaryflag[], MPI_Comm comm, MPI_Comm* newcomm) {
+int MPI_Get_info(int* s, int* r, int coord[], int offset[], int neighbours[], int mesh[], int periodic[], int boundaryflag[], MPI_Comm comm, MPI_Comm* newcomm) {
 
   MPI_Comm_size(comm, s);
   MPI_Comm_rank(comm, r);
@@ -35,6 +35,14 @@ int MPI_Get_info(int* s, int* r, int coord[], int neighbours[], int mesh[], int 
   NPROC = mesh[1];
   M = L / MPROC;
   N = L / NPROC;
+  if(L % MPROC != 0 && coord[0] == MPROC-1)
+    M += L % MPROC;
+  if(L % NPROC != 0 && coord[1] == NPROC-1)
+    N += L % NPROC;
+
+  offset[0] = L / MPROC * coord[0];
+  offset[1] = L / NPROC * coord[1];
+
 
   if(rank == 1) {
     printf("rank has down process rank %d\n", neighbours[DOWN]);
@@ -42,16 +50,16 @@ int MPI_Get_info(int* s, int* r, int coord[], int neighbours[], int mesh[], int 
 
 
   int temp;
-  periodic[0] = getNonperiodicLeft(coord);
+  periodic[0] = getNonperiodicLeft(offset);
   temp = coord[1];
   coord[1] = NPROC - 1 - coord[1];
-  periodic[1] = getNonperiodicLeft(coord);
+  periodic[1] = getNonperiodicLeft(offset);
   coord[1] = temp;
 
   boundaryflag[0] = (coord[0] == 0);
   boundaryflag[1] = (coord[0] == MPROC - 1);
 
-  printf("rank : %d, left_nonperiodic:%d, right_nonperiodic: %d\n", rank, periodic[0], periodic[1]);
+  //printf("rank : %d, left_nonperiodic:%d, right_nonperiodic: %d\n", rank, periodic[0], periodic[1]);
 
   if (NPROC * MPROC != size) {
     if (rank == 0) {
@@ -100,15 +108,15 @@ void initializeMap(int** map, int seed, double rho, int size, int maxstep) {
       }
     }
   }
+  
   printf("The initial map is:\n");
-  /*
   for( i = 0; i < L; ++i) {
     for(j = 0; j < L; ++j) {
       printf("%3d ", map[i][j]);
     }
     printf("\n");
   }
-  */
+  
 
   printf("percolate: rho = %f, actual density = %f\n",
     rho, 1.0 - ((double) nhole)/((double) L*L) );
@@ -118,12 +126,11 @@ void initializeMap(int** map, int seed, double rho, int size, int maxstep) {
  * Map is initialized only in rank 0 and rank 0 needs to scatter is
  * to other ranks.
  **/
-void scatterMap(int** smallmap, int** map, int coord[2], MPI_Comm comm) {
+void scatterMap(int** smallmap, int** map, int offset[2], MPI_Comm comm) {
   MPI_Bcast(&map[0][0], L * L, MPI_INT, 0, comm);
   for(int i=0; i < M; ++i) {
     for(int j=0; j < N; ++j){
-      int coordx = coord[0], coordy = coord[1];
-      smallmap[i][j] = map[coordx * M + i][coordy * N + j];
+      smallmap[i][j] = map[offset[0] + i][offset[1] + j];
     }
   }
 }
@@ -179,16 +186,16 @@ int update(int** old, int** new) {
   return nchangelocal;
 }
 
-int getNonperiodicLeft(int coord[2]) {
+int getNonperiodicLeft(int offset[2]) {
   int left_nonperiodic = 0;
   int ratio = 6;
-  if((coord[1] + 1) * N <= L/ratio){
+  if((offset[1] + N) <= L/ratio){
     left_nonperiodic = N;
   }
-  else if(coord[1] * N >= L/ratio){
+  else if(offset[1] >= L/ratio){
     left_nonperiodic = 0;
   } else {
-    left_nonperiodic = L/ratio - coord[1] * N;
+    left_nonperiodic = L/ratio - offset[1];
   }
   return left_nonperiodic;
 }
@@ -267,7 +274,7 @@ void transmit(int rank, int** old, int upmost, int downmost, int left_nonperiodi
 /**
  * Reduce the old maps to the 
  **/
-void reduceOldMaps(int** old, int** map, int coord[], MPI_Comm comm) {
+void reduceOldMaps(int** old, int** map, int offset[], MPI_Comm comm) {
   int** maptp = arralloc(sizeof(int), 2, L, L);
   int i, j;
   for (i=0; i<L; i++) {
@@ -278,7 +285,7 @@ void reduceOldMaps(int** old, int** map, int coord[], MPI_Comm comm) {
   
   for (i=0; i<M; i++) {
     for (j=0; j<N; j++) {
-      maptp[i+coord[0]*M][j+coord[1]*N] = old[i+1][j+1];
+      maptp[i+offset[0]][j+offset[1]] = old[i+1][j+1];
     }
   }
   

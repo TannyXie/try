@@ -88,11 +88,11 @@ int main(int argc, char *argv[])
   MPI_Status status, statuses[8];
 
   int size, rank, left, right, up, down, temp;
-  int coord[2], neighbours[4], mesh[2], periodic[2], boundaryflag[2];
+  int coord[2], offset[2], neighbours[4], mesh[2], periodic[2], boundaryflag[2];
   int tag = 1;
 
 
-  if (MPI_Get_info(&size, &rank, coord, neighbours, mesh, periodic, boundaryflag, comm, &newcomm) == 1) {
+  if (MPI_Get_info(&size, &rank, coord, offset, neighbours, mesh, periodic, boundaryflag, comm, &newcomm) == 1) {
     printf("Cannot create a cartesian\n");
     MPI_Finalize();
     return 0;
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
   }
 
 
-  scatterMap(smallmap, map, coord, comm);
+  scatterMap(smallmap, map, offset, comm);
 
   initializeOldMap(old, smallmap);
 
@@ -174,7 +174,8 @@ int main(int argc, char *argv[])
 
     step++;
   }
-  //printf("This is sync3 over from rank %d\n\n", rank);
+  if(rank == 0)
+    printf("This is sync3 over from rank %d\n\n", rank);
   /*
    *  We set a maximum number of steps to ensure the algorithm always
    *  terminates. However, if we hit this limit before the algorithm
@@ -192,15 +193,15 @@ int main(int argc, char *argv[])
   /*
    *  Copy the centre of old, excluding the halos, into smallmap
    */
-  reduceOldMaps(old, map, coord, comm);
+  reduceOldMaps(old, map, offset, comm);
   
   /*
    *  Now gather smallmap back to map
    */
-  /*
+  
   if(rank == 0)
     printf("This is sync4 over\n\n");
-  */
+  
 
   if (rank == 0){
     checkPercolate(map, max_size);
