@@ -7,7 +7,7 @@
 /*========================== Library include files ===========================*/
 #include <stddef.h>
 #include <stdarg.h>
-#include <malloc.h>
+//#include <malloc.h>
 /*========================== Library declarations ============================*/
 /* char	*calloc(); */
 /* char	*malloc(); */
@@ -37,7 +37,9 @@ int	malloc_debug();
 
 /*----------------------------------------------------------------------*/
 
-
+/**
+ * 初始化了一个ndim维的矩阵，每一维分别有dimp[index]个下一维的矩阵，prdim
+ **/
 void 	subarray(align_size, size, ndim, prdim, pp, qq, dimp, index)
 size_t  align_size;	/* size of object to align the data on */
 size_t  size;		/* actual size of objects in the array */
@@ -54,7 +56,8 @@ int *dimp, index;
    if(ndim > 0)		/* General case - set up pointers to pointers  */
    {
       for( i = 0; i < prdim; i++)
-	 pp[i] = qq + i*dim;	/* previous level points to us */
+   	   pp[i] = qq + i*dim;	/* previous level points to us */
+    //pp是指向qq的指针数组首地址
 
       subarray(align_size, size, ndim-1, prdim*dim,
 				(void***)qq,	/* my level filled in next */
@@ -63,7 +66,7 @@ int *dimp, index;
    }
    else			/* Last recursion - set up pointers to data   */
       for( i = 0; i < prdim; i++)
-	 dpp[i] = dd + (i*dim)*size/sizeof(int);
+	      dpp[i] = dd + (i*dim)*size/sizeof(int);
 }
             
 
@@ -110,6 +113,7 @@ void *arralloc(size_t size, int ndim, ...)
    {
    	align_size = MIN_ALIGN;
    }
+   //find the minimal common multiple of size and MIN_ALIGN
    while( (align_size % size) || (align_size % MIN_ALIGN) )
    {
    	align_size++;
@@ -125,7 +129,7 @@ void *arralloc(size_t size, int ndim, ...)
       dimp[idim] = va_arg(ap, int);
       n_data *= dimp[idim];
       if( idim < ndim-1 )
-	 n_ptr  += n_data;
+	      n_ptr  += n_data;
    }
    va_end(ap);   
 

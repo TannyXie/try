@@ -1,8 +1,15 @@
-#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <mpi.h>
+#include <string.h>
+#include <math.h>
+
+#include "percolate.h"
+#include "arralloc.h"
 
 extern int L,M,N;
 extern int MPROC, NPROC;
-
+enum direction {LEFT, RIGHT, UP, DOWN};
 
 int MPI_Get_info(int* s, int* r, int coord[], int neighbours[], int mesh[], int periodic[], int boundaryflag[], MPI_Comm comm, MPI_Comm* newcomm);
 void initializeMap(int** map, int seed, double rho, int size, int maxstep);

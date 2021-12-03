@@ -10,14 +10,16 @@ EXE=	percolate
 
 INC= \
 	percolate.h \
-	arralloc.h
+	arralloc.h \
+	subroutine.h
 
 SRC= \
 	percolate.c \
 	percio.c \
 	unirand.c \
 	utils.c \
-	arralloc.c
+	arralloc.c \
+	subroutine.c
 
 #
 # No need to edit below this line
